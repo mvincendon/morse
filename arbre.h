@@ -1,0 +1,5 @@
+
+class Arbre {
+    public:
+        Arbre () {}
+};
