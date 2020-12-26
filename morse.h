@@ -1,7 +1,7 @@
 #include <iostream>
+#include <fstream>
 
-#include "arbre.h"
-
+#include "corres.h"
 
 
 
