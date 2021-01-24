@@ -1,7 +1,20 @@
 #include "wav.h"
 
+template<typename T>
+void print(vector<T> v){
+    for (T b: v){
+        std::cout << b;
+    }
+}
 
-void Wav::ecrire(vector<double> tableau){} //Penser à initialiser fsize
+void Wav::ecrire(const string message){
+
+    // Détermination de la taille
+
+    // _header.Subchunk2Size = ?
+    // std::ofstream file("file.wav", std::ios::binary);
+    // file.write(reinterpret_cast<const char *>(&_header), sizeof(_header));
+}
 
 bool Wav::ecoute(const double val, const bool silence) const{
     /*
@@ -13,12 +26,6 @@ bool Wav::ecoute(const double val, const bool silence) const{
     return ((std::abs(val) <= SEUIL) == silence);
 }
 
-template<typename T>
-void print(vector<T> v){
-    for (T b: v){
-        std::cout << b << std::endl;
-    }
-}
 
 double Wav::sous_mediane(const long unsigned int debut, const long unsigned int fin) const{
     vector<double> sub (_data.begin() + debut, _data.begin() + fin);
@@ -51,22 +58,23 @@ string Wav::interpreter() const {
     vector<bool> lettre;
     if (ecoute(sous_mediane(0, fluct), true)) {iter = periode(iter, true);}   // On enlève un éventuel silence de départ
     bool etat = false;                                      // L'état courant commence donc à false, donc présence d'un son
+    // int compt = 0;
     while (iter < _data.size()-fluct){
         iterSuiv = periode(iter, etat);
         // On regarde combien d'unités dure cette période
         temps = (iterSuiv-iter) * 1000 / _header.bytesPerSec;
-        std::cout << temps << '\n';
+        
         if (!etat){  // S'il y a un son
             if (std::abs(temps - UNIT) < UNIT/2){
                 lettre.push_back(false);
             }
             else if (std::abs(temps - 3*UNIT) < UNIT/2){
                 lettre.push_back(true);
+
             }
             else {
                 std::cout << "Caractère non reconnu" << '\n';
             }
-            std::cout << "on avance" << '\n';
         }
         else {  // Si c'est un silence
             if (std::abs(temps - 3 * UNIT) < UNIT/2){    // Espace entre 2 lettres
@@ -74,7 +82,8 @@ string Wav::interpreter() const {
                 lettre = {};
             }
             else if (std::abs(temps - 7 * UNIT) < UNIT/2){    // Espace entre 2 mots
-                message += corres.decode(lettre) + " ";
+                message += corres.decode(lettre);
+                message += " ";
                 lettre = {};
             }
         }

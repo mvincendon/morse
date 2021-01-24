@@ -14,7 +14,7 @@ using std::endl;
 using std::fstream;
 
 // Unité de temps, en ms
-#define UNIT 300
+#define UNIT 100
 // Seuil de silence
 #define SEUIL 2
 // Intervalle de temps dans lequel on peut fluctuer sans changer l'interprétation du son ou du silence, en ms
@@ -57,7 +57,7 @@ class Wav{
     public:
         Wav(){}
 
-        void ecrire(vector<double> tableau);
+        void ecrire(const string message);
 
         int periode(const long unsigned int debut, const bool silence) const;
 

@@ -27,10 +27,10 @@ int main(int argc, char* argv[]){
     // Correspondance corres ("corres.txt");
 
     Wav wav;
-    wav.lire("R.wav");
+    // wav.lire("SO S2.wav");
     // std::cout << wav.periode(0,0) << '\n';
     // print_in_file(wav.get_tab(), "test3.txt");
-    std::cout << wav.interpreter() << std::endl;
+    // std::cout << wav.interpreter() << '|' << std::endl;
 
 }
 
