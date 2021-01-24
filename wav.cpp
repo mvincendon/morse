@@ -7,13 +7,65 @@ void print(vector<T> v){
     }
 }
 
-void Wav::ecrire(const string message){
+template<typename T>
+void print_in_file(vector<T> v, string path){
+    std::ofstream file;
+    file.open(path);
+    for (T x: v){
+        file << x << "\n";
+    }
+    file.close();
+}
 
-    // Détermination de la taille
+void Wav::convertir(char &car){
+    car = std::toupper(car);
+    if (!_corres->existe(car))
+        car = ' ';
+}
 
-    // _header.Subchunk2Size = ?
-    // std::ofstream file("file.wav", std::ios::binary);
-    // file.write(reinterpret_cast<const char *>(&_header), sizeof(_header));
+void Wav::generer(const unsigned short int nbUnits, const bool silence){
+    double frequence = 440;
+    // int periode = _header.bytesPerSec / frequence; //En bytes
+    unsigned long int N = nbUnits * UNIT * _header.bytesPerSec / 1000;
+    for (unsigned long int i = 0 ; i < N; i++){
+        
+        _data.push_back(AMPL * !silence * sin(6.283 * frequence * _data.size() / _header.bytesPerSec)); // Sinusoide
+        // bool positif = ((long int)_data.size() % (periode) < periode/2);
+        // _data.push_back(AMPL * !silence * (positif - !positif)); // Créneau
+    }
+}
+
+void Wav::ecrire(string texte, const string fichier){
+
+    std::for_each(texte.begin(), texte.end(), [this](char &car){this->convertir(car);});
+
+    vector<bool> code;  // Contiendra les codes successifs de chaque caractère
+
+    for (char car : texte){
+        if (car == ' '){
+            generer(6, true);
+        }
+        else {
+            code = _corres->code(car);
+            for (bool b : code){
+                generer(!b + 3*b, false);   // Génèrera 1 unité si b=0 (court) et 3 si b=1 (long)
+                generer(1, true);
+            }
+            generer(1, true);
+        }
+        generer(1, true);
+    }
+
+    print_in_file(_data, "test4.txt");
+
+    _header.Subchunk2Size = _data.size();
+    _header.ChunkSize = _header.Subchunk2Size + 36;
+    std::ofstream file("res.wav", std::ios::binary);
+    file.write(reinterpret_cast<const char *>(&_header), sizeof(_header));
+    for (int d : _data){    // On a besoin de caster en int pour la réinterprétation
+        file.write(reinterpret_cast<char *>(&d), 1);
+    }
+    file.close();
 }
 
 bool Wav::ecoute(const double val, const bool silence) const{
@@ -51,7 +103,6 @@ int Wav::periode(const long unsigned int debut, const bool silence) const{
 }
 
 string Wav::interpreter() const {
-    Correspondance corres ("corres.txt");
     long unsigned int iter = 0, iterSuiv = 0;
     double temps;   // Seront des ms
     string message;
@@ -78,11 +129,11 @@ string Wav::interpreter() const {
         }
         else {  // Si c'est un silence
             if (std::abs(temps - 3 * UNIT) < UNIT/2){    // Espace entre 2 lettres
-                message += corres.decode(lettre);
+                message += _corres->decode(lettre);
                 lettre = {};
             }
             else if (std::abs(temps - 7 * UNIT) < UNIT/2){    // Espace entre 2 mots
-                message += corres.decode(lettre);
+                message += _corres->decode(lettre);
                 message += " ";
                 lettre = {};
             }
@@ -91,7 +142,7 @@ string Wav::interpreter() const {
         etat = !etat;
         iter = iterSuiv+1;
     }
-    return message + corres.decode(lettre);
+    return message + _corres->decode(lettre);
 }
 
 

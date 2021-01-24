@@ -4,12 +4,12 @@
 #include <fstream>
 #include <cstdint>
 #include <algorithm>
+#include <cmath>
 
 #include "Correspondance/corres.h"
 
 using std::vector;
 using std::string;
-using std::cout;
 using std::endl;
 using std::fstream;
 
@@ -19,6 +19,8 @@ using std::fstream;
 #define SEUIL 2
 // Intervalle de temps dans lequel on peut fluctuer sans changer l'interprétation du son ou du silence, en ms
 #define FLUCT 10
+// Amplitude des oscillations à générer
+#define AMPL 100
 
 typedef struct  WAV_HEADER
 {
@@ -46,20 +48,27 @@ class Wav{
         wav_hdr _header;
         vector<double> _data;
         long unsigned int fluct;
+        Correspondance* _corres;
 
         double sous_mediane(const long unsigned int debut, const long unsigned int fin) const;
 
+        void convertir(char &car);
+
+        void generer(const unsigned short int nbUnits, const bool silence);
+
         bool ecoute(const double val, const bool silence) const;
 
-        // int periode(const long unsigned int debut, const bool silence) const;
+        int periode(const long unsigned int debut, const bool silence) const;
 
 
     public:
-        Wav(){}
+        Wav(const string corres){
+            _corres = new Correspondance(corres);
+        }
 
-        void ecrire(const string message);
+        void ecrire(string texte, const string fichier);
 
-        int periode(const long unsigned int debut, const bool silence) const;
+        // int periode(const long unsigned int debut, const bool silence) const;
 
         string interpreter() const;
 

@@ -12,3 +12,8 @@ char Correspondance::decode(const vector<bool> vect){
     }
     return _version->current_val();
 }
+
+bool Correspondance::existe(const char car){
+    return _theme.count(car);
+}
+

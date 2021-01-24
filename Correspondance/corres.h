@@ -65,6 +65,8 @@ class Correspondance {
 
         char decode(const vector<bool> vect);
 
+        bool existe(const char car);
+
 };
 
 
