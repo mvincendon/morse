@@ -3,10 +3,11 @@
 #include <map>
 #include <vector>
 #include <string>
-// #include "Correspondance/corres.h"
+#include "wav.h"
 
 using std::map;
 using std::vector;
 using std::string;
-
+using std::cout;
+using std::cin;
 

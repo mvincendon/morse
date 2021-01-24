@@ -56,7 +56,6 @@ void Wav::ecrire_fichier(const string source, const string target){
 }
 
 void Wav::ecrire(string texte, const string target){
-
     std::for_each(texte.begin(), texte.end(), [this](char &car){this->convertir(car);});
 
     vector<bool> code;  // Contiendra les codes successifs de chaque caractère
@@ -109,7 +108,9 @@ double Wav::sous_mediane(const long unsigned int debut, const long unsigned int 
 }
 
 int Wav::periode(const long unsigned int debut, const bool silence) const{
-    // On avance jusqu'au prochain changement d'état (son ou silence)
+    /* 
+        On avance jusqu'au prochain changement d'état (son ou silence)
+    */
     long unsigned int iter = debut;
     while (iter < _data.size() - fluct){
         if (ecoute(_data[iter], silence)){ // Valeur non nulle
@@ -161,7 +162,7 @@ string Wav::interpreter() const {
             else if (std::abs(temps - UNIT) >= UNIT/2){     // Si l'on n'est pas dans le cas d'un silence simple
                 message += _corres->decode(lettre);
                 lettre = {};
-                while (std::abs(temps - UNIT) >= UNIT/2){
+                while (temps > 0 && std::abs(temps - UNIT) >= UNIT){
                     message += " ";
                     temps -= 3 * UNIT;
                 }
