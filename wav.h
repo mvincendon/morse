@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <algorithm>
 #include <cmath>
+#include "config.h"
 
 #include "Correspondance/corres.h"
 
@@ -13,14 +14,7 @@ using std::string;
 using std::endl;
 using std::fstream;
 
-// Unité de temps, en ms
-#define UNIT 100
-// Seuil de silence
-#define SEUIL 2
-// Intervalle de temps dans lequel on peut fluctuer sans changer l'interprétation du son ou du silence, en ms
-#define FLUCT 10
-// Amplitude des oscillations à générer
-#define AMPL 100
+
 
 typedef struct  WAV_HEADER
 {
@@ -60,20 +54,19 @@ class Wav{
 
         int periode(const long unsigned int debut, const bool silence) const;
 
+        string lire_fichier(const string source);
+
+        string interpreter() const;
 
     public:
         Wav(const string corres){
             _corres = new Correspondance(corres);
         }
 
-        void ecrire(string texte, const string fichier);
+        void ecrire(string texte, const string target);
 
-        // int periode(const long unsigned int debut, const bool silence) const;
+        void ecrire_fichier(const string source, const string target);
 
-        string interpreter() const;
-
-        void lire(const string source);
-
-        vector<double> get_data() const;     //Temporaire pour le debugging
+        string lire(const string source);
 };
 

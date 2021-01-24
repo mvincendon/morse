@@ -36,9 +36,9 @@ class Correspondance {
             std::ifstream input;
             input.open(source);
 
-            string ligne;
-            std::getline(input, ligne); // De la forme A .-
-            while (!ligne.empty()) {
+            string ligne; // De la forme A .-
+            while (!input.eof()) {
+                std::getline(input, ligne);
                 char car = ligne[0];
                 string code_str = ligne.substr(2, ligne.length() - 3);
                 vector<bool> code = string_to_vect(code_str);
@@ -49,9 +49,7 @@ class Correspondance {
                 for (bool b : code){
                     _version->avance(b);
                 }
-                _version->set_current_val(car); // On remplit l'arbre
-
-                std::getline(input, ligne);
+                _version->set_current_val(car); // On remplit l'arbre                
             }
 
             input.close();

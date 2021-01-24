@@ -17,6 +17,22 @@ void print_in_file(vector<T> v, string path){
     file.close();
 }
 
+// ########################### Partie écriture ############################
+
+string Wav::lire_fichier(const string source){
+    string texte;
+    std::ifstream message;
+    message.open(source);
+    string ligne;
+    while(!message.eof()){
+        std::getline(message, ligne);
+        texte += ligne;
+    }
+    message.close();
+    std::cout << "Fichier d'entrée lu." << '\n';
+    return texte;
+}
+
 void Wav::convertir(char &car){
     car = std::toupper(car);
     if (!_corres->existe(car))
@@ -35,7 +51,11 @@ void Wav::generer(const unsigned short int nbUnits, const bool silence){
     }
 }
 
-void Wav::ecrire(string texte, const string fichier){
+void Wav::ecrire_fichier(const string source, const string target){
+    ecrire(lire_fichier(source), target);
+}
+
+void Wav::ecrire(string texte, const string target){
 
     std::for_each(texte.begin(), texte.end(), [this](char &car){this->convertir(car);});
 
@@ -60,7 +80,7 @@ void Wav::ecrire(string texte, const string fichier){
 
     _header.Subchunk2Size = _data.size();
     _header.ChunkSize = _header.Subchunk2Size + 36;
-    std::ofstream file("res.wav", std::ios::binary);
+    std::ofstream file(target, std::ios::binary);
     file.write(reinterpret_cast<const char *>(&_header), sizeof(_header));
     for (int d : _data){    // On a besoin de caster en int pour la réinterprétation
         file.write(reinterpret_cast<char *>(&d), 1);
@@ -78,6 +98,7 @@ bool Wav::ecoute(const double val, const bool silence) const{
     return ((std::abs(val) <= SEUIL) == silence);
 }
 
+// ########################### Partie lecture ###############################
 
 double Wav::sous_mediane(const long unsigned int debut, const long unsigned int fin) const{
     vector<double> sub (_data.begin() + debut, _data.begin() + fin);
@@ -137,6 +158,14 @@ string Wav::interpreter() const {
                 message += " ";
                 lettre = {};
             }
+            else if (std::abs(temps - UNIT) >= UNIT/2){     // Si l'on n'est pas dans le cas d'un silence simple
+                message += _corres->decode(lettre);
+                lettre = {};
+                while (std::abs(temps - UNIT) >= UNIT/2){
+                    message += " ";
+                    temps -= 3 * UNIT;
+                }
+            }
         }
 
         etat = !etat;
@@ -145,8 +174,7 @@ string Wav::interpreter() const {
     return message + _corres->decode(lettre);
 }
 
-
-void Wav::lire(const string source){
+string Wav::lire(const string source){
 
     int headerSize = sizeof(wav_hdr);
 
@@ -170,9 +198,8 @@ void Wav::lire(const string source){
     }
     fluct = FLUCT * _header.bytesPerSec / 1000;
     fclose(wavFile);
+
+    return interpreter();
 }
 
-vector<double> Wav::get_data() const{
-    return _data;
-}
 
