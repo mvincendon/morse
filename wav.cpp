@@ -35,8 +35,8 @@ string Wav::lire_fichier(const string source){
 
 void Wav::convertir(char &car){
     car = std::toupper(car);
-    if (!_corres->existe(car))
-        car = ' ';
+    if (!_corres->existe(car) && car != ' ')
+        car = '?';
 }
 
 void Wav::generer(const unsigned short int nbUnits, const bool silence){
@@ -60,22 +60,21 @@ void Wav::ecrire(string texte, const string target){
 
     vector<bool> code;  // Contiendra les codes successifs de chaque caractère
 
-    for (char car : texte){
-        if (car == ' '){
-            generer(6, true);
+    for (int i = 0 ; i < (int)texte.length() ; i++){
+        if (texte[i] == ' '){
+            generer(7, true);
         }
         else {
-            code = _corres->code(car);
-            for (bool b : code){
-                generer(!b + 3*b, false);   // Génèrera 1 unité si b=0 (court) et 3 si b=1 (long)
+            code = _corres->code(texte[i]);
+            generer(!code[0] + 3*code[0], false);   // Génèrera 1 unité si 0 (court) et 3 si 1 (long)
+            for (short int j = 1 ; j < (short)code.size() ; j++){
                 generer(1, true);
+                generer(!code[j] + 3*code[j], false);
             }
-            generer(1, true);
+            if (i+1 < (int)texte.length() && (texte[i+1]!=' '))
+                generer(3, true);
         }
-        generer(1, true);
     }
-
-    print_in_file(_data, "test4.txt");
 
     _header.Subchunk2Size = _data.size();
     _header.ChunkSize = _header.Subchunk2Size + 36;
@@ -164,7 +163,7 @@ string Wav::interpreter() const {
                 lettre = {};
                 while (temps > 0 && std::abs(temps - UNIT) >= UNIT){
                     message += " ";
-                    temps -= 3 * UNIT;
+                    temps -= 7 * UNIT;
                 }
             }
         }

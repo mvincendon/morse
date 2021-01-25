@@ -1,0 +1,11 @@
+Tests de lecture :
+sos.wav doit donner "SOS"
+hello_world.wav doit donner "SALUT TOUT LE MONDE"
+
+Tests d'écriture :
+"SOS" doit donner ... --- ...
+
+Tests d'involutivité :
+Tout message codé en morse doit bien être décodé en lui-même
+(modulo la casse et les caractères spéciaux).
+Ex : Paragraphe.txt <-> Involutivite.txt
